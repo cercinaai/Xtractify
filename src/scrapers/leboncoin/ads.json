@@ -1,0 +1,462 @@
+{
+    "total": 163377,
+    "total_all": 163377,
+    "total_pro": 74210,
+    "total_private": 89167,
+    "total_active": 0,
+    "total_inactive": 0,
+    "total_shippable": 0,
+    "max_pages": 100,
+    "referrer_id": "5622afd8-ce29-4156-acfa-c918596c2463",
+    "pivot": "{\"es_pivot\":\"1739960265000|2939321174\",\"total\":163377,\"page_number\":2}",
+    "ads": [
+        {
+            "list_id": 2939323844,
+            "first_publication_date": "2025-02-19 11:20:53",
+            "expiration_date": "2025-04-20 12:20:53",
+            "index_date": "2025-02-19 11:20:53",
+            "status": "active",
+            "category_id": "10",
+            "category_name": "Locations",
+            "subject": "Studio meublé à loueer dans une maison",
+            "body": "STUDIO MEUBLÉ À LOUEER DANS UNE MAISON\n\nÀ Caen Pour étudiant(e) sérieux(se)  au pied de université campus 1\nStudio meublé de 13 m2 dans une maison avec entrée indépendante \nBien équipé (lit, table, chaises, meubles de rangement, kitchenette, plaques, micro-ondes,\nfrigidaire, cabine de douche, WC .  Petite terrasse  \nInternet et télévision.\nLoyer 450 euros/mois charges comprises (électricité, eau, chauffage)\n1 mois de caution.",
+            "brand": "leboncoin",
+            "ad_type": "offer",
+            "url": "https://www.leboncoin.fr/ad/locations/2939323844",
+            "price": [
+                450
+            ],
+            "price_cents": 45000,
+            "images": {
+                "thumb_url": "https://img.leboncoin.fr/api/v1/lbcpb1/images/00/6e/fc/006efc32e8ebec49e8b3c369b2204c19a8a42229.jpg?rule=ad-thumb",
+                "small_url": "https://img.leboncoin.fr/api/v1/lbcpb1/images/00/6e/fc/006efc32e8ebec49e8b3c369b2204c19a8a42229.jpg?rule=ad-small",
+                "nb_images": 3,
+                "urls": [
+                    "https://img.leboncoin.fr/api/v1/lbcpb1/images/00/6e/fc/006efc32e8ebec49e8b3c369b2204c19a8a42229.jpg?rule=ad-image",
+                    "https://img.leboncoin.fr/api/v1/lbcpb1/images/2a/8b/18/2a8b186d7e49f874eb82ee2ab9dd153d0d864b57.jpg?rule=ad-image",
+                    "https://img.leboncoin.fr/api/v1/lbcpb1/images/67/89/38/67893874a11b08f9b3aaa885221604f040059316.jpg?rule=ad-image"
+                ],
+                "urls_thumb": [
+                    "https://img.leboncoin.fr/api/v1/lbcpb1/images/00/6e/fc/006efc32e8ebec49e8b3c369b2204c19a8a42229.jpg?rule=ad-thumb",
+                    "https://img.leboncoin.fr/api/v1/lbcpb1/images/2a/8b/18/2a8b186d7e49f874eb82ee2ab9dd153d0d864b57.jpg?rule=ad-thumb",
+                    "https://img.leboncoin.fr/api/v1/lbcpb1/images/67/89/38/67893874a11b08f9b3aaa885221604f040059316.jpg?rule=ad-thumb"
+                ],
+                "urls_large": [
+                    "https://img.leboncoin.fr/api/v1/lbcpb1/images/00/6e/fc/006efc32e8ebec49e8b3c369b2204c19a8a42229.jpg?rule=ad-large",
+                    "https://img.leboncoin.fr/api/v1/lbcpb1/images/2a/8b/18/2a8b186d7e49f874eb82ee2ab9dd153d0d864b57.jpg?rule=ad-large",
+                    "https://img.leboncoin.fr/api/v1/lbcpb1/images/67/89/38/67893874a11b08f9b3aaa885221604f040059316.jpg?rule=ad-large"
+                ]
+            },
+            "attributes": [
+                {
+                    "key": "profile_picture_url",
+                    "value": "https://img.leboncoin.fr/api/v1/tenants/9a6387a1-6259-4f2c-a887-7e67f23dd4cb/domains/20bda58f-d650-462e-a72a-a5a7ecf2bf88/buckets/21d2b0bc-e54c-4b64-a30b-89127b18b785/images/profile/pictures/default/84abf291-3434-5075-ba1b-438726061d37?rule=pp-small",
+                    "values": [
+                        "https://img.leboncoin.fr/api/v1/tenants/9a6387a1-6259-4f2c-a887-7e67f23dd4cb/domains/20bda58f-d650-462e-a72a-a5a7ecf2bf88/buckets/21d2b0bc-e54c-4b64-a30b-89127b18b785/images/profile/pictures/default/84abf291-3434-5075-ba1b-438726061d37?rule=pp-small"
+                    ],
+                    "value_label": "https://img.leboncoin.fr/api/v1/tenants/9a6387a1-6259-4f2c-a887-7e67f23dd4cb/domains/20bda58f-d650-462e-a72a-a5a7ecf2bf88/buckets/21d2b0bc-e54c-4b64-a30b-89127b18b785/images/profile/pictures/default/84abf291-3434-5075-ba1b-438726061d37?rule=pp-small",
+                    "generic": false
+                },
+                {
+                    "key": "real_estate_type",
+                    "value": "2",
+                    "values": [
+                        "2"
+                    ],
+                    "key_label": "Type de bien",
+                    "value_label": "Appartement",
+                    "generic": true
+                },
+                {
+                    "key": "furnished",
+                    "value": "1",
+                    "values": [
+                        "1"
+                    ],
+                    "key_label": "Ce bien est :",
+                    "value_label": "Meublé",
+                    "generic": true
+                },
+                {
+                    "key": "square",
+                    "value": "13",
+                    "values": [
+                        "13"
+                    ],
+                    "key_label": "Surface habitable",
+                    "value_label": "13 m²",
+                    "generic": true
+                },
+                {
+                    "key": "rooms",
+                    "value": "1",
+                    "values": [
+                        "1"
+                    ],
+                    "key_label": "Nombre de pièces",
+                    "value_label": "1",
+                    "generic": true
+                },
+                {
+                    "key": "elevator",
+                    "value": "2",
+                    "values": [
+                        "2"
+                    ],
+                    "key_label": "Ascenseur",
+                    "value_label": "Non",
+                    "generic": true
+                },
+                {
+                    "key": "charges_included",
+                    "value": "1",
+                    "values": [
+                        "1"
+                    ],
+                    "key_label": "Charges incluses",
+                    "value_label": "Oui",
+                    "generic": true
+                },
+                {
+                    "key": "district_id",
+                    "value": "102030",
+                    "values": [
+                        "102030"
+                    ],
+                    "value_label": "102030",
+                    "generic": false
+                },
+                {
+                    "key": "district_visibility",
+                    "value": "true",
+                    "values": [
+                        "true"
+                    ],
+                    "value_label": "true",
+                    "generic": false
+                },
+                {
+                    "key": "district_type_id",
+                    "value": "1",
+                    "values": [
+                        "1"
+                    ],
+                    "value_label": "1",
+                    "generic": false
+                },
+                {
+                    "key": "district_resolution_type",
+                    "value": "integration",
+                    "values": [
+                        "integration"
+                    ],
+                    "value_label": "integration",
+                    "generic": false
+                },
+                {
+                    "key": "security_deposit",
+                    "value": "450",
+                    "values": [
+                        "450"
+                    ],
+                    "key_label": "Dépôt de garantie",
+                    "value_label": "450 €",
+                    "generic": true
+                },
+                {
+                    "key": "is_import",
+                    "value": "false",
+                    "values": [
+                        "false"
+                    ],
+                    "value_label": "false",
+                    "generic": false
+                },
+                {
+                    "key": "lease_type",
+                    "value": "rent",
+                    "values": [
+                        "rent"
+                    ],
+                    "value_label": "rent",
+                    "generic": false
+                }
+            ],
+            "location": {
+                "country_id": "FR",
+                "region_id": "4",
+                "region_name": "Basse-Normandie",
+                "department_id": "14",
+                "department_name": "Calvados",
+                "city_label": "Caen 14000",
+                "city": "Caen",
+                "zipcode": "14000",
+                "lat": 49.19904,
+                "lng": -0.37299,
+                "source": "address",
+                "provider": "here",
+                "is_shape": false,
+                "feature": {
+                    "type": "Feature",
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": [
+                            -0.37299,
+                            49.19904
+                        ]
+                    },
+                    "properties": null
+                }
+            },
+            "owner": {
+                "store_id": "21185045",
+                "user_id": "6413fbe5-fc31-4ea9-8654-d6dad7b678de",
+                "type": "private",
+                "name": "caen",
+                "no_salesmen": true,
+                "activity_sector": ""
+            },
+            "options": {
+                "has_option": false,
+                "booster": false,
+                "photosup": false,
+                "urgent": false,
+                "gallery": false,
+                "sub_toplist": false,
+                "continuous_top_ads": false,
+                "highlight": false
+            },
+            "has_phone": true,
+            "similar": null,
+            "counters": {}
+        },
+        {
+            "list_id": 2939323674,
+            "first_publication_date": "2025-02-19 11:20:43",
+            "expiration_date": "2025-04-20 12:20:43",
+            "index_date": "2025-02-19 11:20:43",
+            "status": "active",
+            "category_id": "10",
+            "category_name": "Locations",
+            "subject": "Garage 24 m2 quai d' Alsace",
+            "body": "Garage de 24 m2: 8mx3m en sous sol d' une résidence sécurisée. \nCaution 150 euros.",
+            "brand": "leboncoin",
+            "ad_type": "offer",
+            "url": "https://www.leboncoin.fr/ad/locations/2939323674",
+            "price": [
+                150
+            ],
+            "price_cents": 15000,
+            "images": {
+                "thumb_url": "https://img.leboncoin.fr/api/v1/lbcpb1/images/1a/1f/bc/1a1fbce85b812b6795044ce246e8cc6a4adbf282.jpg?rule=ad-thumb",
+                "small_url": "https://img.leboncoin.fr/api/v1/lbcpb1/images/1a/1f/bc/1a1fbce85b812b6795044ce246e8cc6a4adbf282.jpg?rule=ad-small",
+                "nb_images": 2,
+                "urls": [
+                    "https://img.leboncoin.fr/api/v1/lbcpb1/images/1a/1f/bc/1a1fbce85b812b6795044ce246e8cc6a4adbf282.jpg?rule=ad-image",
+                    "https://img.leboncoin.fr/api/v1/lbcpb1/images/7c/c5/d1/7cc5d1ca2775187f449634a5cac4d8c2ad96a38c.jpg?rule=ad-image"
+                ],
+                "urls_thumb": [
+                    "https://img.leboncoin.fr/api/v1/lbcpb1/images/1a/1f/bc/1a1fbce85b812b6795044ce246e8cc6a4adbf282.jpg?rule=ad-thumb",
+                    "https://img.leboncoin.fr/api/v1/lbcpb1/images/7c/c5/d1/7cc5d1ca2775187f449634a5cac4d8c2ad96a38c.jpg?rule=ad-thumb"
+                ],
+                "urls_large": [
+                    "https://img.leboncoin.fr/api/v1/lbcpb1/images/1a/1f/bc/1a1fbce85b812b6795044ce246e8cc6a4adbf282.jpg?rule=ad-large",
+                    "https://img.leboncoin.fr/api/v1/lbcpb1/images/7c/c5/d1/7cc5d1ca2775187f449634a5cac4d8c2ad96a38c.jpg?rule=ad-large"
+                ]
+            },
+            "attributes": [
+                {
+                    "key": "rating_score",
+                    "value": "1",
+                    "values": [
+                        "1"
+                    ],
+                    "value_label": "1",
+                    "generic": false
+                },
+                {
+                    "key": "rating_count",
+                    "value": "9",
+                    "values": [
+                        "9"
+                    ],
+                    "value_label": "9",
+                    "generic": false
+                },
+                {
+                    "key": "profile_picture_url",
+                    "value": "https://img.leboncoin.fr/api/v1/tenants/9a6387a1-6259-4f2c-a887-7e67f23dd4cb/domains/20bda58f-d650-462e-a72a-a5a7ecf2bf88/buckets/21d2b0bc-e54c-4b64-a30b-89127b18b785/images/profile/pictures/default/97b285c0-7523-51ff-a49c-3db1da138bb9?rule=pp-small",
+                    "values": [
+                        "https://img.leboncoin.fr/api/v1/tenants/9a6387a1-6259-4f2c-a887-7e67f23dd4cb/domains/20bda58f-d650-462e-a72a-a5a7ecf2bf88/buckets/21d2b0bc-e54c-4b64-a30b-89127b18b785/images/profile/pictures/default/97b285c0-7523-51ff-a49c-3db1da138bb9?rule=pp-small"
+                    ],
+                    "value_label": "https://img.leboncoin.fr/api/v1/tenants/9a6387a1-6259-4f2c-a887-7e67f23dd4cb/domains/20bda58f-d650-462e-a72a-a5a7ecf2bf88/buckets/21d2b0bc-e54c-4b64-a30b-89127b18b785/images/profile/pictures/default/97b285c0-7523-51ff-a49c-3db1da138bb9?rule=pp-small",
+                    "generic": false
+                },
+                {
+                    "key": "real_estate_type",
+                    "value": "4",
+                    "values": [
+                        "4"
+                    ],
+                    "key_label": "Type de bien",
+                    "value_label": "Parking",
+                    "generic": true
+                },
+                {
+                    "key": "energy_rate",
+                    "value": "v",
+                    "values": [
+                        "v"
+                    ],
+                    "key_label": "Classe énergie",
+                    "value_label": "Vierge",
+                    "generic": true
+                },
+                {
+                    "key": "ges",
+                    "value": "v",
+                    "values": [
+                        "v"
+                    ],
+                    "key_label": "GES",
+                    "value_label": "Vierge",
+                    "generic": true
+                },
+                {
+                    "key": "charges_included",
+                    "value": "1",
+                    "values": [
+                        "1"
+                    ],
+                    "key_label": "Charges incluses",
+                    "value_label": "Oui",
+                    "generic": true
+                },
+                {
+                    "key": "district_id",
+                    "value": "3001839",
+                    "values": [
+                        "3001839"
+                    ],
+                    "value_label": "3001839",
+                    "generic": false
+                },
+                {
+                    "key": "district_visibility",
+                    "value": "true",
+                    "values": [
+                        "true"
+                    ],
+                    "value_label": "true",
+                    "generic": false
+                },
+                {
+                    "key": "district_type_id",
+                    "value": "9",
+                    "values": [
+                        "9"
+                    ],
+                    "value_label": "9",
+                    "generic": false
+                },
+                {
+                    "key": "district_resolution_type",
+                    "value": "integration",
+                    "values": [
+                        "integration"
+                    ],
+                    "value_label": "integration",
+                    "generic": false
+                },
+                {
+                    "key": "real_estate_type_specificities",
+                    "value": "",
+                    "values": [
+                        "garage"
+                    ],
+                    "key_label": "Nature du bien",
+                    "value_label": "Garage",
+                    "values_label": [
+                        "Garage"
+                    ],
+                    "generic": true
+                },
+                {
+                    "key": "security_deposit",
+                    "value": "150",
+                    "values": [
+                        "150"
+                    ],
+                    "key_label": "Dépôt de garantie",
+                    "value_label": "150 €",
+                    "generic": true
+                },
+                {
+                    "key": "is_import",
+                    "value": "false",
+                    "values": [
+                        "false"
+                    ],
+                    "value_label": "false",
+                    "generic": false
+                },
+                {
+                    "key": "lease_type",
+                    "value": "rent",
+                    "values": [
+                        "rent"
+                    ],
+                    "value_label": "rent",
+                    "generic": false
+                }
+            ],
+            "location": {
+                "country_id": "FR",
+                "region_id": "13",
+                "region_name": "Languedoc-Roussillon",
+                "department_id": "11",
+                "department_name": "Aude",
+                "city_label": "Narbonne 11100",
+                "city": "Narbonne",
+                "zipcode": "11100",
+                "lat": 43.18909,
+                "lng": 2.99827,
+                "source": "address",
+                "provider": "here",
+                "is_shape": false,
+                "feature": {
+                    "type": "Feature",
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": [
+                            2.99827,
+                            43.18909
+                        ]
+                    },
+                    "properties": null
+                }
+            },
+            "owner": {
+                "store_id": "19359688",
+                "user_id": "f7bcff81-6f3a-4a7d-af78-d1c0a3a7dc5f",
+                "type": "private",
+                "name": "justeillusion",
+                "no_salesmen": true,
+                "activity_sector": ""
+            },
+            "options": {
+                "has_option": false,
+                "booster": false,
+                "photosup": false,
+                "urgent": false,
+                "gallery": false,
+                "sub_toplist": false,
+                "continuous_top_ads": false,
+                "highlight": false
+            },
+            "has_phone": false,
+            "similar": null,
+            "counters": {}
+        }
+    ]
+}
