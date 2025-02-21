@@ -40,7 +40,9 @@ def open_leboncoin():
         apply_filters(page)
 
         # Extraire les annonces
+        # scrape_listings_via_api(page)
         scrape_listings_via_api(page)
+
 
         # # Lancer la recherche
 

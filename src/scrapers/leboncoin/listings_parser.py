@@ -1,17 +1,18 @@
-import json
-import random
 import logging
-from datetime import datetime
-import requests
-from playwright.sync_api import Page, Response
-from src.database.realStateLbc import RealStateLBCModel, save_annonce_to_db, annonce_exists
-from src.utils.human_behavior import human_like_delay
+from playwright.sync_api import Page, TimeoutError
+from src.utils.human_behavior import human_like_click_search, human_like_scroll_to_element, human_like_delay
+from src.database.realStateLbc import annonce_exists, save_annonce_to_db
+from src.database.realStateLbc import RealStateLBCModel
 from src.utils.b2_util import upload_image_to_b2
+from datetime import datetime
 
 logger = logging.getLogger(__name__)
+
+TARGET_API_URL = "https://api.leboncoin.fr/finder/search"
 total_scraped = 0
 
 def get_attr_by_label(ad: dict, label: str, default=None, get_values: bool = False):
+    """Recherche dans ad["attributes"] un attribut dont key_label correspond à label."""
     for attr in ad.get("attributes", []):
         if attr.get("key_label", "").strip() == label:
             if get_values:
@@ -19,164 +20,236 @@ def get_attr_by_label(ad: dict, label: str, default=None, get_values: bool = Fal
             return attr.get("value_label", default)
     return default
 
-def process_images(image_urls: list) -> list:
-    new_urls = []
-    for url in image_urls:
-        try:
-            response = requests.get(url)
-            if response.status_code == 200:
-                filename = url.split("/")[-1].split("?")[0]
-                new_url = upload_image_to_b2(response.content, filename)
-                new_urls.append(new_url)
-            else:
-                new_urls.append(url)
-        except Exception as e:
-            logger.error(f"Erreur lors du traitement de l'image {url} : {e}")
-            new_urls.append(url)
-    return new_urls
+def wait_for_api_response(page: Page, context: str, timeout: int = 70000) -> dict | None:
+    """Attend et retourne la dernière réponse API contenant 'ads' en écoutant toutes les requêtes."""
+    last_valid_response = None
+    elapsed_time = 0
+    interval = 1000  # Vérifier toutes les secondes
 
-def intercept_api_response(page: Page, timeout=60000) -> dict:
-    """Attend et intercepte la réponse API contenant les annonces pour la première page.
-       Pour éviter le captcha, nous n'effectuons pas de page.reload().
-    """
-    def handle_response(response):
-        if "api.leboncoin.fr/finder/search" in response.url and response.status == 200:
+    def on_response(response):
+        nonlocal last_valid_response
+        if response.url.startswith(TARGET_API_URL) and response.status == 200:
             try:
-                data = response.json()
-                if "ads" in data:
-                    return data
-            except json.JSONDecodeError:
-                pass
-        return None
-
-    try:
-        # Attendre que l'API soit appelée naturellement après le chargement initial de la page
-        with page.expect_response(
-            lambda r: "api.leboncoin.fr/finder/search" in r.url,
-            timeout=timeout
-        ) as response_info:
-            page.wait_for_timeout(1000)  # léger délai pour laisser la page initier l'appel
-        
-        response = response_info.value
-        data = handle_response(response)
-        if not data:
-            logger.error("Réponse API invalide - pas d'annonces trouvées")
-            return {}
-        return data
-    except TimeoutError:
-        logger.error(f"Timeout de {timeout}ms dépassé en attendant la réponse API")
-        return {}
-
-def handle_pagination(page: Page, current_page: int, timeout=60000) -> list:
-    """Gère la pagination et retourne les nouvelles annonces via l'API pour la page suivante.
-       Pour la page 2 (et suivantes), il clique directement sur le lien de pagination.
-    """
-    try:
-        # Sélection du lien de la page voulue
-        selector = f"a[data-spark-component='pagination-item'][data-index='{current_page}']"
-        page_link = page.query_selector(selector)
-        if not page_link:
-            logger.info("Lien de pagination non trouvé pour la page {0}".format(current_page))
-            return []
-        
-        # Attendre que la page actuelle soit complètement chargée
-        # page.wait_for_load_state("networkidle")
-        
-        # Optionnel : réalisez un déplacement de la souris pour simuler un comportement humain
-        bbox = page_link.bounding_box()
-        if bbox:
-            page.mouse.move(bbox["x"] + random.uniform(2, 5), bbox["y"] + random.uniform(2, 5))
-        
-        with page.expect_response(
-            lambda r: "api.leboncoin.fr/finder/search" in r.url and r.status == 200,
-            timeout=timeout
-        ) as response_info:
-            page_link.click()
-        
-        response = response_info.value
-        try:
-            data = response.json()
-            return data.get("ads", [])
-        except json.JSONDecodeError:
-            logger.error("Erreur lors du décodage de la réponse JSON pour la page {0}".format(current_page))
-            return []
-    
-    except Exception as e:
-        logger.error(f"Erreur de pagination pour la page {current_page}: {e}")
-        return []
-
-def scrape_listings_from_page2(page: Page):
-    """Démarre le scraping directement sur la page suivante (page 2) en interceptant l'API."""
-    global total_scraped
-    current_page = 2  # On commence directement à la page 2
-    max_pages = 3
-    max_retries = 3
-
-    while current_page <= max_pages:
-        retries = 0
-        while retries < max_retries:
-            try:
-                logger.info(f"Interception de l'API pour la page {current_page}...")
-                # Utilisation de la fonction handle_pagination pour cliquer sur « Page suivante » et intercepter la réponse API
-                ads = handle_pagination(page, current_page)
-                
-                if not ads:
-                    logger.info("Aucune annonce trouvée - tentative de réessai")
-                    retries += 1
-                    human_like_delay(5, 10)
-                    continue
-
-                new_ads = 0
-                for ad in ads:
-                    annonce_id = str(ad.get("list_id"))
-                    if annonce_exists(annonce_id):
-                        continue
-
-                    annonce_data = RealStateLBCModel(
-                        id=annonce_id,
-                        publication_date=ad.get("first_publication_date"),
-                        title=ad.get("subject"),
-                        url=ad.get("url"),
-                        price=ad.get("price", [None])[0] if isinstance(ad.get("price"), list) else ad.get("price"),
-                        nbrImages=ad.get("images", {}).get("nb_images"),
-                        images=ad.get("images", {}).get("urls"),
-                        typeBien=get_attr_by_label(ad, "Type de bien"),
-                        meuble=get_attr_by_label(ad, "Ce bien est :"),
-                        surface=get_attr_by_label(ad, "Surface habitable"),
-                        nombreDepiece=get_attr_by_label(ad, "Nombre de pièces"),
-                        nombreSalleEau=get_attr_by_label(ad, "Nombre de salle d'eau"),
-                        classeEnergie=get_attr_by_label(ad, "Classe énergie"),
-                        ges=get_attr_by_label(ad, "GES"),
-                        ascenseur=get_attr_by_label(ad, "Ascenseur"),
-                        etage=get_attr_by_label(ad, "Étage de votre bien"),
-                        nombreEtages=get_attr_by_label(ad, "Nombre d'étages dans l'immeuble"),
-                        exterieur=get_attr_by_label(ad, "Extérieur", get_values=True),
-                        charges_incluses=get_attr_by_label(ad, "Charges incluses"),
-                        depot_garantie=get_attr_by_label(ad, "Dépôt de garantie"),
-                        caracteristiques=get_attr_by_label(ad, "Caractéristiques", get_values=True),
-                        region=ad.get("location", {}).get("region_name"),
-                        city=ad.get("location", {}).get("city"),
-                        zipcode=ad.get("location", {}).get("zipcode"),
-                        agencename=ad.get("owner", {}).get("name"),
-                        scraped_at=datetime.utcnow()
-                    )
-                    
-                    save_annonce_to_db(annonce_data)
-                    new_ads += 1
-                    total_scraped += 1
-
-                logger.info(f"Page {current_page} traitée - {new_ads} nouvelles annonces")
-                current_page += 1
-                human_like_delay(2, 4)
-                break  # Succès, on sort de la boucle de tentatives
-
+                json_response = response.json()
+                if "ads" in json_response and json_response["ads"]:
+                    last_valid_response = json_response
+                    logger.info(f"📡 {context}: API interceptée avec {len(json_response['ads'])} annonces : {response.url}")
             except Exception as e:
-                logger.error(f"Erreur lors du traitement de la page {current_page}: {e}")
-                retries += 1
-                human_like_delay(5, 10)
+                logger.debug(f"⚠️ {context}: Erreur dans {response.url}: {e}")
 
-        if retries == max_retries:
-            logger.error(f"Échec après {max_retries} tentatives pour la page {current_page}")
+    logger.debug(f"🔍 {context}: Début de l'écoute des réponses réseau...")
+    page.on("response", on_response)
+    
+    # Attendre jusqu'à ce qu'une réponse valide soit trouvée ou que le timeout soit atteint
+    while elapsed_time < timeout:
+        if last_valid_response:
+            page.remove_listener("response", on_response)
+            logger.debug(f"🔍 {context}: Réponse valide trouvée, arrêt immédiat : {last_valid_response}")
+            return last_valid_response
+        page.wait_for_timeout(interval)
+        elapsed_time += interval
+    
+    logger.debug(f"🔍 {context}: Fin de l'écoute sans réponse valide après {timeout/1000} secondes.")
+    logger.warning(f"⚠️ {context}: Aucune réponse valide avec 'ads' après {timeout/1000} secondes.")
+    page.remove_listener("response", on_response)
+    return None
+
+def process_ad(ad: dict) -> None:
+    """Traite une annonce et l'enregistre dans la base de données."""
+    global total_scraped
+    annonce_id = str(ad.get("list_id"))
+    if annonce_exists(annonce_id):
+        logger.info(f"⏭ Annonce {annonce_id} déjà existante dans la base.")
+        return
+
+    logger.debug(f"📋 Traitement de l'annonce {annonce_id}...")
+    raw_images = ad.get("images", {}).get("urls", [])
+    bucketed_images = [upload_image_to_b2(url, "real_estate") for url in raw_images]
+
+    annonce_data = RealStateLBCModel(
+        id=annonce_id,
+        publication_date=ad.get("first_publication_date"),
+        index_date=ad.get("index_date"),
+        expiration_date=ad.get("expiration_date"),
+        status=ad.get("status"),
+        ad_type=ad.get("ad_type"),
+        title=ad.get("subject"),
+        description=ad.get("body"),
+        descrip=ad.get("body"),
+        url=ad.get("url"),
+        category_id=ad.get("category_id"),
+        category_name=ad.get("category_name"),
+        price=(ad.get("price", [None])[0] if isinstance(ad.get("price"), list) else ad.get("price")),
+        nbrImages=ad.get("images", {}).get("nb_images"),
+        images=bucketed_images,
+        typeBien=get_attr_by_label(ad, "Type de bien"),
+        meuble=get_attr_by_label(ad, "Ce bien est :"),
+        surface=get_attr_by_label(ad, "Surface habitable"),
+        nombreDepiece=get_attr_by_label(ad, "Nombre de pièces"),
+        nombreChambres=get_attr_by_label(ad, "Nombre de chambres"),
+        nombreSalleEau=get_attr_by_label(ad, "Nombre de salle d'eau"),
+        nb_salles_de_bain=get_attr_by_label(ad, "Nombre de salle de bain"),
+        nb_parkings=get_attr_by_label(ad, "Places de parking"),
+        nb_niveaux=get_attr_by_label(ad, "Nombre de niveaux"),
+        disponibilite=get_attr_by_label(ad, "Disponible à partir de"),
+        annee_construction=get_attr_by_label(ad, "Année de construction"),
+        classeEnergie=get_attr_by_label(ad, "Classe énergie"),
+        ges=get_attr_by_label(ad, "GES"),
+        ascenseur=get_attr_by_label(ad, "Ascenseur"),
+        etage=get_attr_by_label(ad, "Étage de votre bien"),
+        nombreEtages=get_attr_by_label(ad, "Nombre d’étages dans l’immeuble"),
+        exterieur=get_attr_by_label(ad, "Extérieur", get_values=True),
+        charges_incluses=get_attr_by_label(ad, "Charges incluses"),
+        depot_garantie=get_attr_by_label(ad, "Dépôt de garantie"),
+        loyer_mensuel_charges=get_attr_by_label(ad, "Charges locatives"),
+        caracteristiques=get_attr_by_label(ad, "Caractéristiques", get_values=True),
+        region=ad.get("location", {}).get("region_name"),
+        city=ad.get("location", {}).get("city"),
+        zipcode=ad.get("location", {}).get("zipcode"),
+        departement=ad.get("location", {}).get("department_name"),
+        latitude=ad.get("location", {}).get("lat"),
+        longitude=ad.get("location", {}).get("lng"),
+        region_id=ad.get("location", {}).get("region_id"),
+        departement_id=ad.get("location", {}).get("department_id"),
+        agencename=ad.get("owner", {}).get("name"),
+        scraped_at=datetime.utcnow()
+    )
+
+    try:
+        save_annonce_to_db(annonce_data)
+        total_scraped += 1
+        logger.info(f"✅ Annonce enregistrée : {annonce_id} - Total extrait : {total_scraped}")
+    except Exception as e:
+        logger.error(f"❌ Erreur lors de l'enregistrement de {annonce_id} : {e}")
+
+def reload_filters_and_search(page: Page):
+    """Décocher puis recocher 'Maison' et cliquer sur 'Rechercher' pour forcer une nouvelle requête API."""
+    try:
+        logger.info("🔄 Rechargement des filtres pour forcer l'API...")
+        FILTRES_BTN = 'button[title="Afficher tous les filtres"]'
+        PRO_CHECKBOX = 'button[role="checkbox"][value="pro"]'
+        SEARCH_BTN = 'button[aria-label="Rechercher"]:visible'
+
+        # Ouvrir le dropdown des filtres
+        logger.info("🖱️ Clic sur 'Afficher tous les filtres'...")
+        filter_button = page.locator(FILTRES_BTN)
+        filter_button.wait_for(timeout=60000)
+        human_like_click_search(page, FILTRES_BTN, click_delay=0.7, move_cursor=True)
+        human_like_delay(1, 2)
+
+        # Décocher "Pro"
+        logger.info("📜 Décochage du filtre 'Pro'...")
+        maison_button = page.locator(PRO_CHECKBOX)
+        maison_button.wait_for(state="visible", timeout=10000)
+        human_like_scroll_to_element(page, maison_button, scroll_steps=4, jitter=True)
+        maison_button.click()  # Premier clic pour décocher
+        human_like_delay(1, 2)
+
+        # Recocher "Maison"
+        logger.info("📜 Recochage du filtre 'Maison'...")
+        maison_button = page.locator('button[role="checkbox"][value="pro"]')
+        maison_button.wait_for(state="visible", timeout=10000)
+        human_like_click_search(page, 'button[role="checkbox"][value="pro"]', click_delay=0.5, move_cursor=True)
+        human_like_delay(1, 2)
+
+        # Cliquer sur "Rechercher"
+        logger.info("🔄 Clic sur 'Rechercher' pour recharger l'API...")
+        search_button = page.locator(SEARCH_BTN)
+        search_button.wait_for(timeout=60000)
+        human_like_click_search(page, SEARCH_BTN, click_delay=0.5, move_cursor=True)
+        human_like_delay(2, 4)
+
+        return True
+    except Exception as e:
+        logger.error(f"❌ Erreur lors du rechargement des filtres : {e}")
+        return False
+
+def scrape_listings_via_api(page: Page) -> None:
+    """Scrape les annonces des pages 1 à 5 en interceptant l'API."""
+    global total_scraped
+    current_page = 1
+    MAX_PAGES = 5
+    MAX_RETRIES = 3
+
+    # Attendre le bouton "Rechercher"
+    try:
+        expect_search = page.locator('button[aria-label="Rechercher"]:visible')
+        expect_search.wait_for(timeout=60000)
+    except TimeoutError:
+        logger.error("❌ Bouton 'Rechercher' non trouvé.")
+        return
+
+    # Page 1 : Utiliser l'API
+    logger.info("🔄 Clic sur 'Rechercher' pour charger la page 1...")
+    human_like_click_search(page, 'button[aria-label="Rechercher"]:visible', move_cursor=True, click_delay=0.5)
+    response = wait_for_api_response(page, "Page 1", timeout=70000)
+
+    if response and "ads" in response and response["ads"]:
+        logger.info(f"✅ Page 1: {len(response['ads'])} annonces interceptées via API.")
+        for ad in response["ads"]:
+            process_ad(ad)
+    else:
+        logger.warning("⚠️ Page 1: Aucune réponse avec annonces via API. Rechargement des filtres...")
+        if reload_filters_and_search(page):
+            response = wait_for_api_response(page, "Page 1 (après rechargement)", timeout=70000)
+            if response and "ads" in response and response["ads"]:
+                logger.info(f"✅ Page 1: {len(response['ads'])} annonces interceptées via API après rechargement.")
+                for ad in response["ads"]:
+                    process_ad(ad)
+            else:
+                logger.error("❌ Échec du scraping de la page 1 même après rechargement.")
+                return
+        else:
+            logger.error("❌ Échec du rechargement des filtres pour la page 1.")
+            return
+
+    # Pagination : Pages 2 à 5
+    while current_page < MAX_PAGES:
+        retries = 0
+        next_button = page.locator('a[aria-label="Page suivante"]')
+        if not next_button.is_visible(timeout=5000):
+            logger.info(f"🏁 Fin de la pagination à la page {current_page}.")
             break
 
-    logger.info(f"Scraping terminé - Total d'annonces: {total_scraped}")
+        while retries < MAX_RETRIES:
+            logger.info(f"🌀 Passage à la page {current_page + 1} (Tentative {retries + 1}/{MAX_RETRIES})...")
+            try:
+                human_like_scroll_to_element(page, next_button, scroll_steps=2, jitter=True)
+                human_like_click_search(page, 'a[aria-label="Page suivante"]', move_cursor=True, click_delay=0.5)
+                response = wait_for_api_response(page, f"Page {current_page + 1}", timeout=70000)
+
+                if response and "ads" in response and response["ads"]:
+                    logger.info(f"✅ Page {current_page + 1}: {len(response['ads'])} annonces interceptées via API.")
+                    for ad in response["ads"]:
+                        process_ad(ad)
+                    break
+                else:
+                    logger.warning(f"⚠️ Page {current_page + 1}: Aucune réponse avec annonces via API. Rechargement des filtres...")
+                    if reload_filters_and_search(page):
+                        response = wait_for_api_response(page, f"Page {current_page + 1} (après rechargement)", timeout=70000)
+                        if response and "ads" in response and response["ads"]:
+                            logger.info(f"✅ Page {current_page + 1}: {len(response['ads'])} annonces interceptées via API après rechargement.")
+                            for ad in response["ads"]:
+                                process_ad(ad)
+                            break
+                        else:
+                            logger.warning(f"⚠️ Échec après rechargement, nouvelle tentative...")
+                            retries += 1
+                            human_like_delay(1, 3)
+                    else:
+                        logger.error(f"❌ Échec du rechargement des filtres pour la page {current_page + 1}.")
+                        retries += 1
+                        human_like_delay(1, 3)
+            except Exception as e:
+                logger.error(f"⚠️ Erreur lors de la navigation vers page {current_page + 1}: {e}")
+                retries += 1
+                human_like_delay(1, 3)
+
+        if retries >= MAX_RETRIES:
+            logger.error(f"❌ Page {current_page + 1}: Échec après {MAX_RETRIES} tentatives, arrêt.")
+            break
+
+        current_page += 1
+        human_like_delay(2, 4)
+
+    logger.info(f"🏁 Scraping terminé - Total annonces extraites : {total_scraped}")

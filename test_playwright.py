@@ -1,8 +1,4 @@
-from playwright.sync_api import sync_playwright
+from src.utils.b2_util import upload_image_to_b2
 
-with sync_playwright() as p:
-    browser = p.chromium.launch(headless=False)
-    page = browser.new_page()
-    page.goto("https://www.google.com")
-    print("✅ Navigateur ouvert avec succès !")
-    browser.close()
+test_url = "https://img.leboncoin.fr/api/v1/lbcpb1/images/b4/f8/3b/b4f83b9b27dc12269be78db151f6de4cbb6d0407.jpg?rule=ad-image"
+print(upload_image_to_b2(test_url))

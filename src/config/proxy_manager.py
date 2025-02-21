@@ -23,7 +23,7 @@ def get_proxy_url():
     """Retourne l'URL du proxy pour l'utiliser dans tout le projet."""
     session_id = generate_session_id()
     proxy_pass = f"uSMU7Zv9SRjhG60b_country-fr_session-{session_id}_lifetime-35m_streaming-1"
-    # proxy_pass = "uSMU7Zv9SRjhG60b_country-fr_session-hNYOQSCI_lifetime-30m"
+    # proxy_pass = "uSMU7Zv9SRjhG60b_country-fr_session-KPNbYudH_lifetime-31m_streaming-1"
     proxy_url = f"http://{PROXY_USER}:{proxy_pass}@{PROXY_HOST}:{PROXY_PORT}"
     return proxy_url
 

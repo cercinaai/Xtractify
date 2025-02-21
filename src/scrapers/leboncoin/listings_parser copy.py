@@ -92,37 +92,54 @@ def scrape_listings_via_api(page: Page):
                 continue
 
             # Traitement des images : upload sur S3 et récupérer les nouvelles URL.
-            raw_images = ad.get("images", {}).get("urls")
-            if raw_images:
-                b2_images = process_images(raw_images)
-            else:
-                b2_images = None
+            raw_images = ad.get("images", {}).get("urls", [])
+            bucketed_images = [upload_image_to_b2(url, "real_estate") for url in raw_images]
 
             annonce_data = RealStateLBCModel(
-                id=annonce_id,
+                 id=annonce_id,
                 publication_date=ad.get("first_publication_date"),
+                index_date=ad.get("index_date"),
+                expiration_date=ad.get("expiration_date"),
+                status=ad.get("status"),
+                ad_type=ad.get("ad_type"),
                 title=ad.get("subject"),
+                description=ad.get("body"),
+                descrip=ad.get("body"),
                 url=ad.get("url"),
+                category_id=ad.get("category_id"),
+                category_name=ad.get("category_name"),
                 price=(ad.get("price", [None])[0] if isinstance(ad.get("price"), list) else ad.get("price")),
                 nbrImages=ad.get("images", {}).get("nb_images"),
-                images=b2_images,
+                images=bucketed_images,
                 typeBien=get_attr_by_label(ad, "Type de bien"),
                 meuble=get_attr_by_label(ad, "Ce bien est :"),
                 surface=get_attr_by_label(ad, "Surface habitable"),
                 nombreDepiece=get_attr_by_label(ad, "Nombre de pièces"),
+                nombreChambres=get_attr_by_label(ad, "Nombre de chambres"),
                 nombreSalleEau=get_attr_by_label(ad, "Nombre de salle d'eau"),
+                nb_salles_de_bain=get_attr_by_label(ad, "Nombre de salle de bain"),
+                nb_parkings=get_attr_by_label(ad, "Places de parking"),
+                nb_niveaux=get_attr_by_label(ad, "Nombre de niveaux"),
+                disponibilite=get_attr_by_label(ad, "Disponible à partir de"),
+                annee_construction=get_attr_by_label(ad, "Année de construction"),
                 classeEnergie=get_attr_by_label(ad, "Classe énergie"),
                 ges=get_attr_by_label(ad, "GES"),
                 ascenseur=get_attr_by_label(ad, "Ascenseur"),
                 etage=get_attr_by_label(ad, "Étage de votre bien"),
                 nombreEtages=get_attr_by_label(ad, "Nombre d’étages dans l’immeuble"),
-                exterieur=get_attr_by_label(ad, "Extérieur", default=None, get_values=True),
+                exterieur=get_attr_by_label(ad, "Extérieur", get_values=True),
                 charges_incluses=get_attr_by_label(ad, "Charges incluses"),
                 depot_garantie=get_attr_by_label(ad, "Dépôt de garantie"),
-                caracteristiques=get_attr_by_label(ad, "Caractéristiques", default=None, get_values=True),
+                loyer_mensuel_charges=get_attr_by_label(ad, "Charges locatives"),
+                caracteristiques=get_attr_by_label(ad, "Caractéristiques", get_values=True),
                 region=ad.get("location", {}).get("region_name"),
                 city=ad.get("location", {}).get("city"),
                 zipcode=ad.get("location", {}).get("zipcode"),
+                departement=ad.get("location", {}).get("department_name"),
+                latitude=ad.get("location", {}).get("lat"),
+                longitude=ad.get("location", {}).get("lng"),
+                region_id=ad.get("location", {}).get("region_id"),
+                departement_id=ad.get("location", {}).get("department_id"),
                 agencename=ad.get("owner", {}).get("name"),
                 scraped_at=datetime.utcnow()
             )
